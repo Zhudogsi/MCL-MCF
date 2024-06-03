@@ -9,6 +9,7 @@ in achieving multilevel fusion. Their collaborative operation yields optimal fus
 
 We are grateful for the open source baseline of MMIM. We built MCL-MCF on it. For configuration and dataset related open source, please refer to MMIM (https://github.com/declare-lab/Multimodal-Infomax?tab=readme-ov-file).
 ### Usage
+1,Download the CMU-MOSI and CMU-MOSEI dataset from `[Google Drive]([[https://www.google.co](https://pan.baidu.com/share/init?surl=Wxo4Bim9JhNmg8265p3ttQ)m](https://drive.google.com/drive/folders/1djN_EkrwoRLUt7Vq_QfNZgCl_24wBiIK))` or `[Baidu Disk]([https://www.google.co](https://pan.baidu.com/share/init?surl=Wxo4Bim9JhNmg8265p3ttQ)m)` (extraction code: g3m2)  
 ```python
 python main.py 
 ```
