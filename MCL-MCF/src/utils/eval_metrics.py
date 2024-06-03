@@ -45,7 +45,7 @@ def eval_mosei_senti(results, truths, exclude_zero=False):
     mult_a7 = multiclass_acc(test_preds_a7, test_truth_a7)
     mult_a5 = multiclass_acc(test_preds_a5, test_truth_a5)
     mult_a3 = multiclass_acc(test_preds_a3, test_truth_a3)
-    print("这是三分类的结果",mult_a3)
+
 
     # f_score = f1_score((test_preds[non_zeros] > 0), (test_truth[non_zeros] > 0), average='weighted')
     binary_truth_non0 = test_truth[non_zeros] > 0
@@ -64,7 +64,6 @@ def eval_mosei_senti(results, truths, exclude_zero=False):
     print("Correlation Coefficient: ", corr)
     print("mult_acc_7: ", mult_a7)
     print("mult_acc_5: ", mult_a5)
-    print("这是三分类的结果",mult_a3)
     print("F1 score all/non0: {}/{} over {}/{}".format(np.round(f_score, 4),
           np.round(f_score_non0, 4), binary_truth_has0.shape[0], binary_truth_non0.shape[0]))
     print("Accuracy all/non0: {}/{}".format(np.round(acc_2, 4), np.round(acc_2_non0, 4)))
