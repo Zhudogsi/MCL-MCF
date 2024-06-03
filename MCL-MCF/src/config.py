@@ -60,7 +60,7 @@ def get_args():
                         help='dropout of projection layer')
 
     # Architecture
-    # action=‘store_true’，只要运行时该变量有传参就将该变量设为True。
+    # action=‘store_true’，
     parser.add_argument('--multiseed', action='store_true',
                         help='training using multiple seed')
     parser.add_argument('--contrast', default=True,
@@ -93,9 +93,9 @@ def get_args():
                         help='Activation layer type at the end of all MMILB modules')
     parser.add_argument('--cpc_activation', type=str, default='Tanh',
                         help='Activation layer type in all CPC modules')
-#/media/data2/zhukang/newnew/newnewnewnewnew/new_7_2____2_2_-2good-1/Multimodal-Infomax-main/src/config.py
+
     # Training Setting
-    parser.add_argument('--batch_size', type=int, default=128, metavar='N',  # 128 0.05 0.05
+    parser.add_argument('--batch_size', type=int, default=128, metavar='N',  
                         help='batch size (default: 32)')
     parser.add_argument('--clip', type=float, default=1.0,
                         help='gradient clip value (default: 0.8)')
