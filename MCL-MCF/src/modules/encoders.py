@@ -7,7 +7,7 @@ from torch.nn.utils.rnn import pad_sequence, pack_padded_sequence, pad_packed_se
 from transformers import BertModel, BertConfig, BertTokenizer
 import numpy as np
 
-MODEL_PATH = '/media/data2/zhukang/goodjob/goodjob/new_7_2____2_2_-2good-1aaa2/Multimodal-Infomax-main/src/bert/' # 装着上面3个文件的文件夹位置
+MODEL_PATH = 'src/bert/' 
 def add_noise(x, intens=1e-7):
     return x + torch.rand(x.size()) * intens
 
@@ -135,7 +135,7 @@ class MMILB(nn.Module):
 
     def __init__(self, x_size, y_size, mid_activation='ReLU', last_activation='Tanh'):
         super(MMILB, self).__init__()
-        try:  # 从nn类中获取  "ReLU"激活函数
+        try:  
             self.mid_activation = getattr(nn, mid_activation)
             self.last_activation = getattr(nn, last_activation)
         except:
@@ -172,7 +172,6 @@ class MMILB(nn.Module):
         # print(self.mlp_logvar)
         mu, logvar = self.mlp_mu(x), self.mlp_logvar(x)  # (bs, hidden_size)
         batch_size = mu.size(0)
-        # 这里不明白为什么这样写？？？
         # slist = []
         # for x in logvar:
         #     n_list = torch.where(torch.isnan(x), torch.full_like(x, 0), x)
@@ -234,7 +233,7 @@ class MMILB(nn.Module):
 
         return lld, sample_dict, H
 
-
+#from Learning Transferable Visual Models From Natural Language Supervision (https://github.com/OpenAI/CLIP)
 class Clip(nn.Module):
     def __init__(self, x_size, y_size):
         super().__init__()
@@ -316,7 +315,7 @@ class RNNEncoder(nn.Module):
             (return value in forward) a tensor of shape (batch_size, out_size)
         '''
         super().__init__()
-        # 指定是否双向
+        
         self.bidirectional = bidirectional
 #                           20            16         1
         self.rnn = nn.LSTM(in_size, hidden_size, num_layers=num_layers,
@@ -331,13 +330,13 @@ class RNNEncoder(nn.Module):
         '''
         lengths = lengths.to(torch.int64)
         bs = x.size(0)
-        # 对这个函数的解释，压缩掉填充无用数据https://blog.csdn.net/wangchaoxjtu/article/details/118023187
+        
         lengths = lengths.to(torch.int64)
-        packed_sequence = pack_padded_sequence(  # 压缩序列，排除填充值
+        packed_sequence = pack_padded_sequence(  
             x, lengths.cpu().to(torch.int64), enforce_sorted=False)
         rnn_output, final_states = self.rnn(packed_sequence)  # 输入压缩
         encoder_outputs, lens = pad_packed_sequence(
-            rnn_output)  # 解开压缩
+            rnn_output)  
 
         if self.bidirectional:
             h = self.dropout(
