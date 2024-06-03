@@ -26,7 +26,7 @@ class Solver(object):
         self.test_loader = test_loader
 
         self.is_train = is_train
-        # 这里刚处理好数据并没有创建网络的模型
+        
         self.model = model
         # Training hyperarams
         self.alpha = hp.alpha
@@ -66,7 +66,7 @@ class Solver(object):
             mmilb_param = []
             main_param = []
             bert_param = []
-            # name是参数所在网络的名字，p是这个参数的值
+            
             for name, p in model.named_parameters():
                 if p.requires_grad:
                     if 'bert' in name:
@@ -75,10 +75,10 @@ class Solver(object):
                         mmilb_param.append(p)
                     else:
                         main_param.append(p)
-                    # Bert的参数是预训练好的，不用单独初始化
+                    
                 for p in (mmilb_param+main_param):
                     if p.dim() > 1:  # only tensor with no less than 2 dimensions are possible to calculate fan_in/fan_out
-                        # 用nn.init.xavier_normal_()的初始化防止刚开始就梯度爆炸
+                        # nn.init.xavier_normal_()
                         nn.init.xavier_normal_(p)
 
         optimizer_main_group = [
@@ -89,8 +89,7 @@ class Solver(object):
         self.optimizer_main = getattr(torch.optim, self.hp.optim)(
             optimizer_main_group
         )
-        # ReduceLROnPlateau：这是常用的学习率策略之一。应用本策略时，当特定的度量指标，如训练损失、
-        # 验证损失或准确率不再变化时，学习率就会改变。通用实践是将学习率的原始值降低为原来的1/2～1/10。
+        
 
         self.scheduler_main = ReduceLROnPlateau(
             self.optimizer_main, mode='min', patience=hp.when, factor=0.5, verbose=True)
@@ -116,9 +115,6 @@ class Solver(object):
 
         def train(model, optimizer, criterion,epochs, stage=1):
             epoch_loss = 0
-            # 如果模型中有 BN 层(Batch Normalization）和
-            # Dropout，需要在训练时添加 model.train()，在测试时添加 model.eval()。
-            # https://blog.csdn.net/weixin_44211968/article/details/123774649
             model.train()
             num_batches = self.hp.n_train // self.hp.batch_size
             proc_loss, proc_size = 0, 0
@@ -130,11 +126,7 @@ class Solver(object):
 
             for i_batch, batch_data in enumerate(self.train_loader):
                 text, visual, vlens, audio, alens, y, l, bert_sent, bert_sent_type, bert_sent_mask, ids = batch_data
-
-                # model.zero_grad()的作用是将所有模型参数的梯度置为0
-                # https://blog.csdn.net/u013250861/article/details/120499427
                 model.zero_grad()
-                # 把数据放到GPU上
                 dd = torch.device("cuda:0")
                 # dd = torch.device("cuda:7")
                 with torch.cuda.device(0):
@@ -151,13 +143,6 @@ class Solver(object):
                 # visiual==(261，32，20) audio==(218,32,5)
                 nce, preds, nce2, nce3 = model(text, visual, audio, vlens, alens,
                                                bert_sent, bert_sent_type, bert_sent_mask, y)
-
-                # if epochs==13:
-                self.y_true = torch.cat([self.y_true,y],dim=0)
-                self.y_pre = torch.cat([self.y_pre,preds],dim=0)
-                # torch.save(self.y_true.to(torch.device('cpu')), "y_true.pth")
-                # torch.save(self.y_pre.to(torch.device('cpu')), "y_pre.pth")
-
                 if stage == 1:
                     y_loss = criterion(preds, y)
 
@@ -173,7 +158,7 @@ class Solver(object):
                 left_batch -= 1
                 if left_batch == 0:
                     left_batch = self.update_batch
-                    torch.nn.utils.clip_grad_norm_(  # 梯度裁剪，防止爆炸
+                    torch.nn.utils.clip_grad_norm_(  
                         model.parameters(), self.hp.clip)
                     optimizer.step()
 
@@ -228,13 +213,6 @@ class Solver(object):
                     # we don't need lld and bound anymore
                     _, preds, _, _ = model(
                         text, vision, audio, vlens, alens, bert_sent, bert_sent_type, bert_sent_mask)
-                    
-                    # if epochs==13:
-                    # if test==True:
-                    self.y_true = torch.cat([self.y_true,y],dim=0)
-                    self.y_pre = torch.cat([self.y_pre,preds],dim=0)
-                    # torch.save(self.y_true.to(torch.device('cpu')), "y_true.pth")
-                    # torch.save(self.y_pre.to(torch.device('cpu')), "y_pre.pth")
 
                     if self.hp.dataset in ['mosi', 'mosei', 'mosei_senti'] and test:
                         criterion = nn.L1Loss()
@@ -251,44 +229,13 @@ class Solver(object):
             results = torch.cat(results)
             truths = torch.cat(truths)
             return avg_loss, results, truths
-
-        best_valid = 1e8
-        best_mae = 1e8
-        # 出现结果最好不变的时候就停止训练
+            
         patience = self.hp.patience
-        p_valuesss = 11
-        epochsssss = -1
-        from scipy import stats
         for epoch in range(1, self.hp.num_epochs+1):
             start = time.time()
-            self.y_true = torch.tensor([])
-            self.y_pre = torch.tensor([])
-            self.epoch = sepochsssss = epoch
-            # maximize likelihood
-            # if self.hp.contrast:  # 是否使用对比学习
-            #     train_loss = train(model, optimizer_mmilb, criterion, 0)
-
-            # minimize all losses left
-            # dd = torch.device("cuda:1")
-            # dd2 = torch.device("cuda:2")
-            # dd3 = torch.device("cuda:3")
-            # devices = [dd2, dd3]
-            # model = nn.DataParallel(model, device_ids=devices)
-            # model = model.to(dd2)
             train_loss = train(model, optimizer_main, criterion, epoch,1)
-
             val_loss, _, _ = evaluate(model, criterion,epoch, test=False)
             test_loss, results, truths = evaluate(model, criterion,epoch, test=True)
-            t_statistic, p_value = stats.ttest_rel(self.y_pre.cpu().squeeze(1).tolist(),self.y_true.cpu().squeeze(1).tolist())
-            self.p_value.append(p_value)
-            self.t_statistic.append(t_statistic)
-            print("这是p_value:--------------------------------","{:.50f}".format(p_value))
-            print("t_statistic:--------------------------------","{:.50f}".format(t_statistic))
-
-            if p_valuesss >p_value:
-                p_valuesss = p_value
-                epochsssss = epoch
-                print("{:.6f}".format(p_valuesss),"这是多少：",sepochsssss)
 
             end = time.time()
             duration = end-start
@@ -301,16 +248,14 @@ class Solver(object):
                 epoch, duration, val_loss, test_loss))
             print("-"*50)
 
-            # if val_loss < best_valid:
-            if True:
+            if val_loss < best_valid:
                 # update best validation
                 patience = self.hp.patience
                 best_valid = val_loss
                 # for ur_funny we don't care about
                 if self.hp.dataset == "ur_funny":
                     eval_humor(results, truths, True)
-                # elif test_loss < best_mae:
-                elif True:
+                elif test_loss < best_mae:
                     best_epoch = epoch
                     best_mae = test_loss
                     if self.hp.dataset in ["mosei_senti", "mosei"]:
