@@ -32,11 +32,10 @@ class MMIM(nn.Module):
         self.add_va = hp.add_va
         # args.d_tin, args.d_vin, args.d_ain = train_config.tva_dim  768 20 5
         hp.d_tout = hp.d_tin
-        # 加载了Bert的预训练模型
+
         self.text_enc = LanguageEmbeddingLayer(hp)
         # 2. Crossmodal Attentions
 
-        # 名字是RNNEncoder内部和论文一样采用的收LSTM
         self.visual_enc = RNNEncoder(  # (rnn): LSTM(20, 16) Linear(in_features=16, out_features=16, bias=True)
             in_size=hp.d_vin,  # 20
             hidden_size=hp.d_vh,  # 16
@@ -93,12 +92,12 @@ class MMIM(nn.Module):
         self.getresNet2 = get_resNet2()
         self.getresNet3 = get_resNet3()
         self.getresNet4 = get_resNet4()
-        self.tfn_tv = Clip(256036, 256036)  # 1032256 86.89 (3,3)通道
+        self.tfn_tv = Clip(256036, 256036)  
         self.tfn_ta = Clip(256036, 256036)
         self.tfn_av = Clip(256036, 256036)
 
         # resnet50 = models.resnet50(pretrained=True).add_module(
-        #     nn.Flatten())  # pretrained=True 加载模型以及训练过的参数
+        #     nn.Flatten())  
 
         self.conv_tfn_t = nn.Sequential(
             nn.Conv2d(
@@ -144,9 +143,9 @@ class MMIM(nn.Module):
         """  # (32,50,768)
         enc_word = self.text_enc(sentences, bert_sent, bert_sent_type,
                                  bert_sent_mask)  # (batch_size, seq_len, emb_size)->(32,50,768)
-        # 这里应该是为了并行计算一次投入32个batch的第一个字
+        
         text = enc_word[:, 0, :]  # (batch_size, emb_size)32,768
-        # 这些RNN(LSTM)经过forward返回的是最后一个状态的H state变换
+        
         acoustic, aco_rnn_output = self.acoustic_enc(
             acoustic, a_len)  # (218,32,5)-> (32,64) #aco_rnn_output->[32, 64, 218])
         visual, vis_rnn_output = self.visual_enc(
