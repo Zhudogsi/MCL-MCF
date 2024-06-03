@@ -21,7 +21,7 @@ conda activate MCL
 python main.py
 ```
 ### Thanks
-We are grateful for the open source baseline of MMIM. We built MCL-MCF on it. For configuration and dataset related open source, please refer to [MMIM] (https://github.com/declare-lab/Multimodal-Infomax?tab=readme-ov-file).
+We are grateful for the open source baseline of MMIM. We built MCL-MCF on it. For configuration and dataset related open source, please refer to [MMIM](https://github.com/declare-lab/Multimodal-Infomax?tab=readme-ov-file).
 Please cite this paper if you find our work useful for your research:
 ```bibtex
 @inproceedings{han2021improving,
