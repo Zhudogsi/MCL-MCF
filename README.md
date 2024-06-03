@@ -8,6 +8,8 @@ in achieving multilevel fusion. Their collaborative operation yields optimal fus
 ![image](https://github.com/Zhudogsi/MCL-MCF/assets/44200919/651e72c0-20f5-4936-adb2-9c0d2779937e)
 
 We are grateful for the open source baseline of MMIM. We built MCL-MCF on it. For configuration and dataset related open source, please refer to MMIM (https://github.com/declare-lab/Multimodal-Infomax?tab=readme-ov-file).
+### Usage
+python main.py 
 
 Please cite this paper if you find our work useful for your research:
 ```bibtex
