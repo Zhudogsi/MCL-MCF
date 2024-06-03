@@ -35,10 +35,7 @@ def return_unk():
 
 
 def get_length(x):
-    # 这里axis=-1是取最后一维进行求和，      这里的sum(1)==sum(axis=1)
-    #          2199 500 20->2199 50->2199
-    # 每一条数据的500里面的前几百行都是0
-    # 这里求得的是500行里面的有效数据是多少行
+
     return x.shape[1]-(np.sum(x, axis=-1) == 0).sum(1)
 
 
@@ -74,21 +71,16 @@ class MOSI:
             csv_filename = 'Multimodal-Infomax-main/datasets/MOSI/MOSI-label.csv'
 
             with open(pickle_filename, 'rb') as f:
-                # 函数的功能：将file中的对象序列化读出。什么叫序列化？
-                # 把对象在内存中的结构转换成便于存储或传输的二进制或文本格式，
-                # 而且以后可以在同一个系统或不同的系统中重建对象的副本。
-                # pickle模块能把任何Python对象序列化成二进制格式。
+ 
                 d = pickle.load(f)
 
             # read csv file for label and text   004 :1 cid_id
             # vid 000'03bSnISJMiM'001:'03bSnISJMiM'002:'03bSnISJMiM'003:'03bSnISJMiM'004:'03bSnISJMiM'
             # text 001:'THERE IS SAD PART'
             df = pd.read_csv(csv_filename)
-            text = df['text']  # 2199个   获得所有的text 数据
-            vid = df['video_id']  # 2199 获得所有数据的video_id
-            cid = df['clip_id']  # 2199  获得所有数据的 clip_id
-            # 在这里猜测每一条数据有一个id label vision text audio
-            # 这个id由两部分组成一部分是video另一部分是clip_id
+            text = df['text']  
+            vid = df['video_id']  
+            cid = df['clip_id']  
             train_split_noalign = d['train']  # 1284
             dev_split_noalign = d['valid']  # 229
             test_split_noalign = d['test']  # 686
@@ -114,7 +106,7 @@ class MOSI:
                 a = np.concatenate(
                     (train_split_noalign['audio'], dev_split_noalign['audio'], test_split_noalign['audio']), axis=0)
                 alens = get_length(a)
-                # 这里的label和从csv里面读取出来label是一样的
+                
                 label = np.concatenate(
                     (train_split_noalign['labels'], dev_split_noalign['labels'], test_split_noalign['labels']), axis=0)
                 # label[label > 0] = 2
@@ -125,7 +117,7 @@ class MOSI:
 
             all_id = np.concatenate(
                 (train_split_noalign['id'], dev_split_noalign['id'], test_split_noalign['id']), axis=0)[:, 0]
-            # 这个是把all_id的编码方式换成了utf-8，原来编码是’S14‘
+            
             all_id_list = list(
                 map(lambda x: x.decode('utf-8'), all_id.tolist()))
 
@@ -140,7 +132,7 @@ class MOSI:
 
             for i, idd in enumerate(all_id_list):
                 # get the video ID and the features out of the aligned dataset
-                # 把idd分成标号和字符根据  '_'
+                
                 idd1, idd2 = re.search(pattern, idd).group(1, 2)
 
                 # matching process
@@ -151,17 +143,16 @@ class MOSI:
                 """
                     Retrive noalign data from pickle file 
                 """
-                # 这里的text是文字，而经过d = pickle.load(f)读取出来的text不是文字，所以直接使用。
-                # 应该是这样，要使得文字与另外两个模态对齐
+                
                 _words = text[index].split()
-                _label = label[i].astype(np.float32)  # 这条数据对应的标签
-                _visual = v[i]  # 视觉
-                _acoustic = a[i]  # 声音
-                _vlen = vlens[i]  # 视觉长度
-                _alen = alens[i]  # 声音长度
+                _label = label[i].astype(np.float32)  
+                _visual = v[i]  
+                _acoustic = a[i]  
+                _vlen = vlens[i]  
+                _alen = alens[i]  
                 _id = all_id[i]
 
-                # remove nan values 默认是用0代替nan的值
+                # remove nan values 
                 _visual = np.nan_to_num(_visual)
                 _acoustic = np.nan_to_num(_acoustic)
 
@@ -180,14 +171,14 @@ class MOSI:
                 for word in _words:
                     actual_words.append(word)
 
-                # 单个数据的前几百行都是0，数据都在后面，为什么在后面不清楚
+                
                 visual = _visual[L_V - _vlen:, :]
                 acoustic = _acoustic[L_A - _alen:, :]
 
                 # z-normalization per instance and remove nan/infs
                 # visual = np.nan_to_num((visual - visual.mean(0, keepdims=True)) / (EPS + np.std(visual, axis=0, keepdims=True)))
                 # acoustic = np.nan_to_num((acoustic - acoustic.mean(0, keepdims=True)) / (EPS + np.std(acoustic, axis=0, keepdims=True)))
-                # 这里是把配对的数据组成一个集合放到一起
+                
                 if i < dev_start:
                     train.append(
                         ((words, visual, acoustic, actual_words, _vlen, _alen), _label, idd))
@@ -219,7 +210,7 @@ class MOSI:
 
     def get_data(self, mode):
         if mode == "train":
-            # 这里的self.train和train引用一个对象所以用self.train也是可以的
+            
             return self.train, self.word2id, None
         elif mode == "valid":
             return self.dev, self.word2id, None
@@ -377,7 +368,7 @@ class MOSEI:
             # torch.save((pretrained_emb, word2id), CACHE_PATH)
             self.pretrained_emb = None
 
-            # Save pickles保存数据
+            
             to_pickle(train, DATA_PATH + '/trainsss.pkl')
             to_pickle(dev, DATA_PATH + '/dev.pkl')
             to_pickle(test, DATA_PATH + '/test.pkl')
