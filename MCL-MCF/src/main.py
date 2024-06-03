@@ -50,7 +50,7 @@ if __name__ == '__main__':
 
     # pretrained_emb saved in train_config here
     train_loader = get_loader(args, train_config, shuffle=True)
-    # for i, x in enumerate(train_loader): 调试collate_fn、pad_sequence方法
+    # for i, x in enumerate(train_loader): 
     #     print(x)
     print(args.dataset, "!!!!!!!!!")
 
@@ -60,7 +60,7 @@ if __name__ == '__main__':
     test_loader = get_loader(args, test_config, shuffle=False)
     print('Test data loaded!')
     print('Finish loading the data....')
-    # 正向传播时：开启自动求导的异常侦测
+
     # torch.autograd.set_detect_anomaly(True)
 
     # addintional appending
