@@ -5,6 +5,7 @@ Hierarchical Alleviation of Heterogeneity in Multimodal Sentiment Analysis
 Inspired by the fusion of objects in the natural world, we conceptualize multimodal fusion as a continuous process, dividing the entire procedure into
 three steps. We design MCL-MCF. MCF simulates the continuous fusion process, while MCL, through multilevel alleviation of heterogeneity, assists MCF
 in achieving multilevel fusion. Their collaborative operation yields optimal fusion results.
+![image](https://github.com/Zhudogsi/MCL-MCF/assets/44200919/651e72c0-20f5-4936-adb2-9c0d2779937e)
 
 We are grateful for the open source baseline of MMIM. We built MCL-MCF on it. For configuration and dataset related open source, please refer to MMIM (https://github.com/declare-lab/Multimodal-Infomax?tab=readme-ov-file).
 
