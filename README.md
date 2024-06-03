@@ -11,7 +11,10 @@ We are grateful for the open source baseline of MMIM. We built MCL-MCF on it. Fo
 ### Usage
 1.Download the CMU-MOSI and CMU-MOSEI dataset from [Google Drive](https://drive.google.com/drive/folders/1djN_EkrwoRLUt7Vq_QfNZgCl_24wBiIK) or [Baidu Disk](https://pan.baidu.com/share/init?surl=Wxo4Bim9JhNmg8265p3ttQ) (extraction code: g3m2)  
 2. environment
-
+```
+conda env create -f environment.yml
+conda activate MCL
+```
 3.
 ```python
 python main.py 
